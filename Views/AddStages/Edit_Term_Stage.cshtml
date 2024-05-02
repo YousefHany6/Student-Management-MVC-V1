@@ -1,0 +1,114 @@
+﻿@model FStudentManagement.Models.TermStage
+
+
+<style>
+ select {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--bs-body-color);
+  background-color: var(--bs-body-bg);
+  background-clip: padding-box;
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+ }
+</style>
+<h1>تعديل القسم</h1>
+
+<hr />
+<div class="row">
+	<div class="col-md-4">
+		<form asp-action="Edit_Term_Stage" id="editTermStageForm">
+			<!-- Existing form elements -->
+   <input hidden asp-for="TermStageId" />
+			<div class="form-floating mb-3">
+    <select asp-for="ParentStageId" aria-required="true" id="parentStageId" class="form-control" asp-items="ViewBag.parents">
+     @{
+      var hasParents = (ViewBag.parents as SelectList)?.Any() ?? false;
+
+      if (hasParents)
+      {
+       <option value="" selected>اختار المرحلة الدراسية</option>
+      }
+      else
+      {
+       <option value="" selected>لايوجد مراحل دراسية</option>
+      }
+     }
+    </select>
+				<span asp-validation-for="ParentStageId" class="text-danger"></span>
+			</div>
+			<div class="form-floating mb-3">
+    <select asp-for="ChildStageId" aria-required="true" id="childStageId" class="form-control" asp-items="ViewBag.childs">
+     <option selected value="">اختر السنة الدراسية</option></select>
+				<span asp-validation-for="ChildStageId" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Name" class="control-label">ادخل اسم القسم</label>
+				<input asp-for="Name" class="form-control" value="@Model.Name" />
+				<span asp-validation-for="Name" class="text-danger"></span>
+			</div>
+
+			<div class="form-group">
+				<input type="submit" value="تعديل" class="btn btn-primary" />
+			</div>
+		</form>
+	</div>
+</div>
+
+<div style="margin-top:10px;">
+	<a asp-controller="AddStages" asp-action="GetAllStags">رجوع الى القائمة</a>
+</div>
+<script>
+ document.addEventListener("DOMContentLoaded", function () {
+  var parentSelect = document.getElementById('parentStageId');
+  var childSelect = document.getElementById('childStageId');
+
+  // Event listener for parent select change
+  parentSelect.addEventListener("change", function () {
+   var selectedIndex = parentSelect.selectedIndex;
+   var selectedParentId = parentSelect.value;
+
+   // Enable child select
+   childSelect.disabled = false;
+
+   // Clear previous options in child select
+   childSelect.innerHTML = '<option selected value="">اختر السنة الدراسية</option>';
+
+   // Fetch data for child based on the selected parent
+   fetch('/Teachers/GetChildStages?parentId=' + selectedParentId)
+    .then((response) => response.json())
+    .then((data) => {
+     if (data.length === 0) {
+      // If child data is empty, add a default option
+      childSelect.innerHTML = '';
+
+      var defaultChildOption = document.createElement("option");
+      defaultChildOption.value = "0";
+      defaultChildOption.text = "لا يوجد سنة دراسية";
+      childSelect.appendChild(defaultChildOption);
+      childSelect.disabled = true; // Disable the child select if there are no options
+     } else {
+      // Add options for each child
+      data.forEach((child) => {
+       var option = document.createElement("option");
+       option.value = child.value;
+       option.text = child.text;
+       childSelect.appendChild(option);
+      });
+     }
+    })
+    .catch((error) => console.log(error));
+  });
+ });
+</script>
+
+@section Scripts {
+ @{
+  await Html.RenderPartialAsync("_ValidationScriptsPartial");
+ }
+}

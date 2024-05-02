@@ -1,0 +1,39 @@
+﻿@using FStudentManagement.Data
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<SUser> SignInManager
+@inject UserManager<SUser> UserManager
+<link href="~/css/card.css" rel="stylesheet" />
+<style>
+ .btnn{
+  background-color: transparent !important;
+  border: none !important;
+
+ }
+ .cards{
+  margin-top: 4rem;
+ }
+</style>
+@if (User.Identity.IsAuthenticated && SignInManager.IsSignedIn(User))
+{
+ var user = await UserManager.GetUserAsync(User);
+
+ if (user != null)
+ {
+  <ul class="cards">
+   <li>
+    <form  method="post">
+     <button class="btnn" asp-controller="stdDashboard" asp-route-user="@user.Id" asp-action="Std_Courses" type="submit">
+      <i class='bx bxs-coin-stack'></i>
+      <span>موادى الدراسية</span>
+     </button>
+    </form>
+   </li>
+   <li>
+     <a asp-controller="stdDashboard"  asp-action="change_password" type="submit">
+     <i class="fa-solid fa-key"></i>     
+     <span>تغيير كلمة السر</span>
+     </a>
+   </li>
+  </ul>
+ }
+}

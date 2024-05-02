@@ -1,0 +1,148 @@
+﻿@model Student
+<link rel="stylesheet" href="https://unpkg.com/bs-brain@2.0.3/components/registrations/registration-5/assets/css/registration-5.css">
+<link href="~/css/create.css" rel="stylesheet" />
+<form asp-controller="Students" autocomplete="off" lang="ar" asp-action="display_Student" enctype="multipart/form-data" method="post">
+<div class="labels row gy-3 gy-md-4 overflow-hidden">
+	@{
+		if (ViewBag.parents != null)
+		{
+
+			<div class="sec2 col-12">
+				<label class="form-label">المرحلة الدراسية<span class="text-danger">*</span></label>
+					<select id="ParentStageId" name="parentid" asp-for="ParentStageId" asp-items="ViewBag.parents">
+						@{
+							var hasParents = (ViewBag.parents as SelectList)?.Any() ?? false;
+
+							if (hasParents)
+							{
+								<option value="" selected>اختار المرحلة الدراسية</option>
+							}
+							else
+							{
+								<option value="" selected>لايوجد مراحل دراسية</option>
+							}
+						}
+					</select>
+				<span asp-validation-for="ParentStageId" class="text-danger"></span>
+
+			</div>
+			@if (ViewBag.Childs != null)
+			{
+
+				<div class="sec2 col-12">
+					<label class="form-label">السنة الدراسية<span class="text-danger">*</span></label>
+						<select id="ChildStageId"  name="childid" asp-for="ChildStageId" asp-items="ViewBag.Childs">
+						<option selected>اختار السنة الدراسية</option>
+
+					</select>
+					<span asp-validation-for="ChildStageId" class="text-danger"></span>
+
+				</div>
+				@if (ViewBag.terms != null)
+				{
+
+					<div class="sec2 col-12">
+						<label class="form-label">القسم<span class="text-danger">*</span></label>
+							<select id="TermStageId" name="termid" asp-for="TermStageId" asp-items="ViewBag.terms">
+							<option selected>اختار القسم</option>
+
+						</select>
+						<span asp-validation-for="TermStageId" class="text-danger"></span>
+
+					</div>
+				}
+			}
+		}
+		else
+		{
+			<div class="sec2 col-12">
+				<h4>يرجى انشاء مرحلة دراسية</h4>
+				<a asp-controller="AddStages" asp-action="GetAllStags" class="btn btn-dark"> انشاء مرحلة دراسية</a>
+
+			</div>
+		}
+	}
+		<div class="con2">
+			<div class="col-12">
+				<div class="d-grid">
+					<input class="btn bsb-btn-xl btn-primary" type="submit" value="عرض الطلاب" />
+				</div>
+			</div>
+		</div>
+</div>
+
+</form>
+
+
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		var parentSelect = document.querySelector('[name="parentid"]');
+		var childSelect = document.querySelector('[name="childid"]');
+		var termSelect = document.querySelector('[name="termid"]');
+
+		// Disable child and term selects initially
+		childSelect.disabled = true;
+		termSelect.disabled = true;
+
+		// Event listener for parent select change
+		parentSelect.addEventListener("change", function () {
+			var selectedParentId = parentSelect.value;
+
+			// Disable child and term selects
+			childSelect.disabled = true;
+			termSelect.disabled = true;
+
+			// Clear existing options in child and term selects
+			childSelect.innerHTML = '<option selected value="">اختر السنة الدراسية</option>';
+			termSelect.innerHTML = '<option selected value="">اختر القسم</option>';
+
+			// If a parent is selected, fetch child stages based on the selected parent
+			if (selectedParentId) {
+				fetch('/Teachers/GetChildStages?parentId=' + selectedParentId)
+					.then((response) => response.json())
+					.then((data) => {
+						// Update child select with new options
+						data.forEach((child) => {
+							var option = new Option(child.text, child.value);
+							childSelect.add(option);
+						});
+
+						// Enable child select
+						childSelect.disabled = false;
+					})
+					.catch((error) => console.log(error));
+			}
+		});
+
+		// Event listener for child select change
+		childSelect.addEventListener("change", function () {
+			var selectedChildId = childSelect.value;
+
+			// Disable term select
+			termSelect.disabled = true;
+
+			// Clear existing options in term select
+			termSelect.innerHTML = '<option selected value="">اختر القسم</option>';
+
+			// If a child is selected, fetch term stages based on the selected child
+			if (selectedChildId) {
+				fetch('/Teachers/GetTermStages?childId=' + selectedChildId)
+					.then((response) => response.json())
+					.then((data) => {
+						// Update term select with new options
+						data.forEach((term) => {
+							var option = new Option(term.text, term.value);
+							termSelect.add(option);
+						});
+
+						// Enable term select
+						termSelect.disabled = false;
+					})
+					.catch((error) => console.log(error));
+			}
+		});
+	});
+</script>
+
+

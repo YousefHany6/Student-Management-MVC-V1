@@ -1,0 +1,158 @@
+﻿@model Attendance
+<link rel="stylesheet" href="https://unpkg.com/bs-brain@2.0.3/components/registrations/registration-5/assets/css/registration-5.css">
+<link href="~/css/display.css" rel="stylesheet" />
+
+
+<form asp-controller="Manage" autocomplete="off" lang="ar" asp-action="Edit_attendance" enctype="multipart/form-data" method="post">
+ <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+	<div class="container">
+		<div class="card mt-1">
+			<div class="card-body" dir="rtl">
+				<div class="row mt-3" style="
+                        display: flex;
+                        align-content: center;
+                        justify-content: center;
+                        flex-direction: column;
+                        align-items: center;
+																												">
+					@if (ViewBag.courses != null)
+					{
+						<div class="col-6">
+							<label class="form-label">المادة<span class="text-danger">*</span></label>
+							<select name="Course_ID" asp-items="ViewBag.courses">
+								<option selected>اختار المادة الدراسية</option>
+							</select>
+						</div>
+					}
+					else
+					{
+						<div class="sec2 col-12">
+							<h4>لا يوجد مواد دراسية </h4>
+							<a asp-controller="AddStages" asp-action="GetAllStags" class="btn btn-dark">انشاء مادة دراسية  جديده</a>
+						</div>
+					}
+
+					@if (ViewBag.teachers != null)
+					{
+						<div class="col-6">
+							<label class="form-label">المعلم<span class="text-danger">*</span></label>
+							<select name="Teacher_ID" asp-items="ViewBag.teachers">
+								<option selected>اختار  المعلم</option>
+							</select>
+						</div>
+						<div class="col-6">
+							<label class="form-label">تاريخ الجدول<span class="text-danger">*</span></label>
+							<select name="tableid" asp-items="ViewBag.att">
+								<option selected>اختار التاريخ</option>
+							</select>
+						</div>
+
+						<button class="btn btn-lg btn-primary mt-5" type="submit">عرض الجدول</button>
+
+					}
+					else
+					{
+						<div class="sec2 col-12">
+							<h4>لا يوجد معلمين </h4>
+							<a asp-controller="Teachers" asp-action="Add_Teacher" class="btn btn-dark">   انشاء معلم جديد</a>
+						</div>
+					}
+
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+
+
+
+<script>
+ document.addEventListener("DOMContentLoaded", function () {
+  const courseSelect = document.querySelector('[name="Course_ID"]');
+  const teacherSelect = document.querySelector('[name="Teacher_ID"]');
+  const dateSelect = document.querySelector('[name="tableid"]');
+
+  // Disable teacher and date selects initially
+  teacherSelect.disabled = true;
+  dateSelect.disabled = true;
+
+  // Event listener for course select change
+  courseSelect.addEventListener("change", function () {
+   const selectedCourseId = courseSelect.value;
+
+   if (selectedCourseId === "") {
+    // If no course is selected
+    teacherSelect.disabled = true;
+    dateSelect.disabled = true;
+    // Display message for no course
+    courseSelect.setCustomValidity("لا يوجد مادة دراسية");
+   } else {
+    // Enable teacher select
+    teacherSelect.disabled = false;
+    dateSelect.disabled = true; // Disable date initially until a teacher is selected
+
+    // Clear previous options in teacher and date selects
+    teacherSelect.innerHTML = '<option selected value="">اختر المعلم</option>';
+    dateSelect.innerHTML = '<option selected value="">اختر التاريخ</option>';
+
+    // Fetch data for teachers based on the selected course
+    fetch('/Manage/GetTeachersByCourse?courseID=' + selectedCourseId)
+     .then((response) => response.json())
+     .then((data) => {
+      if (data.length === 0) {
+       // Display message for no teacher
+       teacherSelect.setCustomValidity("لا يوجد معلم");
+      } else {
+       data.forEach((teacher) => {
+        const option = new Option(teacher.text, teacher.value);
+        teacherSelect.add(option);
+       });
+       // Reset validation message
+       teacherSelect.setCustomValidity("");
+      }
+     })
+     .catch((error) => console.log(error));
+   }
+  });
+
+  // Event listener for teacher select change
+  teacherSelect.addEventListener("change", function () {
+   const selectedTeacherId = teacherSelect.value;
+   const selectedCourseId = courseSelect.value;
+
+   if (selectedTeacherId === "") {
+    // If no teacher is selected
+    dateSelect.disabled = true;
+    // Display message for no teacher
+    teacherSelect.setCustomValidity("لا يوجد معلم");
+   } else {
+    // Enable date select
+    dateSelect.disabled = false;
+
+    // Clear previous options in date select
+    dateSelect.innerHTML = '<option selected value="">اختر التاريخ</option>';
+
+    // Fetch data for dates based on the selected teacher and course
+    fetch('/Manage/GetDatesByTeacherAndCourse?teacherID=' + selectedTeacherId + '&courseID=' + selectedCourseId)
+     .then((response) => response.json())
+     .then((data) => {
+      if (data.length === 0) {
+       // Display message for no date
+       dateSelect.setCustomValidity("لا يوجد للجدول");
+      } else {
+       data.forEach((date) => {
+        const option = new Option(date.text, date.value);
+        dateSelect.add(option);
+       });
+       // Reset validation message
+       dateSelect.setCustomValidity("");
+      }
+     })
+     .catch((error) => console.log(error));
+   }
+  });
+ });
+
+</script>

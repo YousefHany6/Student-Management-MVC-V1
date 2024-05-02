@@ -1,0 +1,248 @@
+﻿@model Teacher
+
+<link rel="stylesheet" href="https://unpkg.com/bs-brain@2.0.3/components/registrations/registration-5/assets/css/registration-5.css">
+<link href="~/css/create.css" rel="stylesheet" />
+
+<body>
+ <section class="p-3 p-md-4 p-xl-5">
+  <form asp-controller="Teachers" autocomplete="off" lang="ar" asp-action="addnewstage" enctype="multipart/form-data" method="post">
+   <div asp-validation-summary="ModelOnly" role="alert" class="text-danger"></div>
+   <div class="container" dir="ltr">
+    <div class="card border-light-subtle shadow-sm">
+     <div class="con1">
+      <div class="col-12">
+       <div class="mb-5">
+        <h2 class="h3">اضافة مرحلة جديدة</h2>
+        <h3 class="fs-6 fw-normal text-secondary m-0 ">ادخل ايميل المعلم</h3>
+       </div>
+      </div>
+     </div>
+     <div class="row g-0">
+      <div class="col-12 col-md-6" dir="rtl">
+       <div class="p-3 p-md-4 p-xl-5 ">
+        <div dir="rtl">
+         <div class="labels row gy-3 gy-md-4 overflow-hidden">
+          @{
+           if (ViewBag.parents != null)
+           {
+            <div class="sec2 col-12">
+             <label class="form-label">المرحلة الدراسية<span class="text-danger">*</span></label>
+             <select required name="parid" asp-items="ViewBag.parents">
+              @{
+               var hasParents = (ViewBag.parents as SelectList)?.Any() ?? false;
+
+               if (hasParents)
+               {
+                <option value="" selected>اختار المرحلة الدراسية</option>
+               }
+               else
+               {
+                <option value="" selected>لايوجد مراحل دراسية</option>
+               }
+              }
+             </select>
+            </div>
+
+            if (ViewBag.Childs != null)
+            {
+             <div class="sec2 col-12">
+              <label class="form-label">السنة الدراسية<span class="text-danger">*</span></label>
+              <select required name="chiid" asp-items="ViewBag.Childs">
+               <option selected>اختار السنة الدراسية</option>
+              </select>
+             </div>
+
+             if (ViewBag.terms != null)
+             {
+              <div class="sec2 col-12">
+               <label class="form-label">القسم<span class="text-danger">*</span></label>
+               <select required name="terid" asp-items="ViewBag.terms">
+                <option selected>اختار القسم</option>
+               </select>
+              </div>
+             }
+            }
+           }
+           else
+           {
+            <div class="sec2 col-12">
+             <h4>يرجى انشاء مرحلة دراسية</h4>
+             <a asp-controller="AddStages" asp-action="GetAllStags" class="btn btn-dark"> انشاء مرحلة دراسية</a>
+            </div>
+           }
+          }
+          <div class="sub">
+           <div class="subjects">
+            <div class="row">
+             @if (ViewBag.courses != null)
+             {
+              @foreach (var course in ViewBag.courses)
+              {
+               <div class="subjects">
+                <input class="form-check-input" type="checkbox" value="@course.Value" name="CoursesList">
+                <label>@course.Text</label>
+               </div>
+              }
+             }
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="col-12 col-md-6">
+       <div class="card-body p-3 p-md-4 p-xl-5 mb-3">
+        <div dir="rtl">
+         <div class="labels row gy-3 gy-md-4 overflow-hidden">
+          <div class="col-12">
+           <label for="email" asp-for="SUser.Email" class="form-label">البريد الالكتروني<span class="text-danger">*</span></label>
+           <input type="email" name="emailth" asp-for="SUser.Email" class="form-control" id="email" placeholder="name@example.com">
+           <span asp-validation-for="SUser.Email" class="text-danger"></span>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="con2">
+      <div class="col-12">
+       <div class="d-grid">
+        <input class="btn bsb-btn-xl btn-primary" type="submit" value="اضافة" />
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </form>
+ </section>
+</body>
+
+<script>
+ document.addEventListener("DOMContentLoaded", function () {
+  var parentSelect = document.querySelector('[name="parid"]');
+  var childSelect = document.querySelector('[name="chiid"]');
+  var termSelect = document.querySelector('[name="terid"]');
+  var coursesContainer = document.querySelector('.subjects');
+
+  // Disable child, term, and courses selects initially
+  childSelect.disabled = true;
+  termSelect.disabled = true;
+  coursesContainer.style.display = 'none';
+
+  // Event listener for parent select change
+  parentSelect.addEventListener("change", function () {
+   var selectedIndex = parentSelect.selectedIndex;
+   var selectedParentId = parentSelect.value;
+
+   if (selectedIndex === 0) {
+    // If no parent stage is selected
+    childSelect.disabled = true;
+    termSelect.disabled = true;
+    coursesContainer.style.display = 'none';
+   } else {
+    // Enable child select
+    childSelect.disabled = false;
+
+    // Clear previous options in child, term, and courses selects
+    childSelect.innerHTML = '<option selected value="">اختر السنة الدراسية</option>';
+    termSelect.innerHTML = '<option selected value="">اختر القسم</option>';
+    coursesContainer.innerHTML = '';
+
+    // Fetch data for child based on the selected parent
+    fetch('/Teachers/GetChildStages?parentId=' + selectedParentId)
+     .then((response) => response.json())
+     .then((data) => {
+      data.forEach((child) => {
+       var option = document.createElement("option");
+       option.value = child.value;
+       option.text = child.text;
+       childSelect.appendChild(option);
+      });
+     })
+     .catch((error) => console.log(error));
+   }
+  });
+
+  // Event listener for child select change
+  childSelect.addEventListener("change", function () {
+   var selectedIndex = childSelect.selectedIndex;
+   var selectedChildId = childSelect.value;
+
+   if (selectedIndex === 0) {
+    // If no child stage is selected
+    termSelect.disabled = true;
+    coursesContainer.style.display = 'none';
+   } else {
+    // Enable term select
+    termSelect.disabled = false;
+
+    // Clear previous options in term and courses selects
+    termSelect.innerHTML = '<option selected value="">اختر القسم</option>';
+    coursesContainer.innerHTML = '';
+
+    // Fetch data for terms based on the selected child
+    fetch('/Teachers/GetTermStages?childId=' + selectedChildId)
+     .then((response) => response.json())
+     .then((data) => {
+      data.forEach((term) => {
+       var option = document.createElement("option");
+       option.value = term.value;
+       option.text = term.text;
+       termSelect.appendChild(option);
+      });
+     })
+     .catch((error) => console.log(error));
+   }
+  });
+
+  // Event listener for term select change
+  termSelect.addEventListener("change", function () {
+   var selectedIndex = termSelect.selectedIndex;
+   var selectedTermId = termSelect.value;
+
+   if (selectedIndex === 0) {
+    // If no term stage is selected
+    coursesContainer.style.display = 'none';
+   } else {
+    // Fetch courses based on the selected parent, child, and term stages
+    var selectedParentId = parentSelect.value;
+    var selectedChildId = childSelect.value;
+    fetch('/Teachers/GetCourses?parentId=' + selectedParentId + '&childId=' + selectedChildId + '&termId=' + selectedTermId)
+     .then((response) => response.json())
+     .then((data) => {
+      coursesContainer.innerHTML = ''; // Clear previous courses
+
+      data.forEach((course) => {
+       var div = document.createElement("div");
+       var input = document.createElement("input");
+       var label = document.createElement("label");
+
+       input.className = "form-check-input";
+       input.type = "checkbox";
+       input.value = course.value;
+       input.required = true;
+       input.name = "CoursesList";
+
+       label.textContent = course.text;
+
+       div.className = "subjects";
+       div.appendChild(input);
+       div.appendChild(label);
+
+       coursesContainer.appendChild(div);
+      });
+
+      coursesContainer.style.display = 'block'; // Display the courses
+     })
+     .catch((error) => console.log(error));
+   }
+  });
+ });
+</script>
+
+@section Scripts {
+ @{
+  await Html.RenderPartialAsync("_ValidationScriptsPartial");
+ }
+}

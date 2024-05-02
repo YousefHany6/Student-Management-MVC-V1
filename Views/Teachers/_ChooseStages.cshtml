@@ -1,0 +1,280 @@
+﻿@model Teacher
+<link rel="stylesheet" href="https://unpkg.com/bs-brain@2.0.3/components/registrations/registration-5/assets/css/registration-5.css">
+<link href="~/css/display.css" rel="stylesheet" />
+<form asp-controller="Teachers" autocomplete="off" lang="ar" asp-action="display_Teacher" enctype="multipart/form-data" method="post">
+	<div class="container">
+		<div class="card mt-1">
+			<div class="card-body" dir="rtl">
+				<div class="row">
+					@{
+						if (ViewBag.parents != null)
+						{
+											<div class="col-6">
+												<label class="form-label">المرحلة الدراسية<span class="text-danger">*</span></label>
+												<select id="ParentStageId" name="parentid" asp-items="ViewBag.parents">
+													@{
+										var hasParents = (ViewBag.parents as SelectList)?.Any() ?? false;
+
+										if (hasParents)
+										{
+																			<option value="" selected>اختار المرحلة الدراسية</option>
+										}
+										else
+										{
+																			<option value="" selected>لايوجد مراحل دراسية</option>
+										}
+													}
+												</select>
+											</div>
+											@if (ViewBag.Childs != null)
+							{
+												<div class="col-6">
+													<label class="form-label">السنة الدراسية<span class="text-danger">*</span></label>
+													<select id="ChildStageId" name="childid" asp-items="ViewBag.Childs">
+														<option selected>اختار السنة الدراسية</option>
+
+													</select>
+												</div>
+												<div class="row mt-3">
+
+													@if (ViewBag.terms != null)
+									{
+														<div class="col-6">
+															<label class="form-label">القسم<span class="text-danger">*</span></label>
+															<select id="TermStageId" name="termid" asp-items="ViewBag.terms">
+																<option selected>اختار القسم </option>
+
+															</select>
+														</div>
+
+									}
+													@if (ViewBag.courses != null)
+									{
+														<div class="col-6">
+															<label class="form-label">المادة<span class="text-danger">*</span></label>
+															<select name="courseid" asp-items="ViewBag.courses">
+																<option selected>اختار المادة الدراسية</option>
+
+															</select>
+														</div>
+									}
+												</div>
+												@if (ViewBag.teachers != null)
+								{
+													<div class="con1 mt-3">
+														<div class="con2">
+															<label class="form-label">المعلم<span class="text-danger">*</span></label>
+															<select name="teacherid" asp-items="ViewBag.teachers">
+																<option selected>اختار  المعلم</option>
+
+															</select>
+															<button class="btn btn-lg btn-primary mt-5" type="submit">عرض المعلم</button>
+														</div>
+													</div>
+								}
+							}
+						}
+						else
+						{
+											<div class="sec2 col-12">
+												<h4>يرجى انشاء مرحلة دراسية</h4>
+												<a asp-controller="AddStages" asp-action="GetAllStags" class="btn btn-dark"> انشاء مرحلة دراسية</a>
+
+											</div>
+						}
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+
+</form>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		var parentSelect = document.querySelector('[name="parentid"]');
+		var childSelect = document.querySelector('[name="childid"]');
+		var termSelect = document.querySelector('[name="termid"]');
+		var coursesSelect = document.querySelector('[name="courseid"]');
+		var teacherSelect = document.querySelector('[name="teacherid"]');
+
+		// Disable child, term, courses, and teacher selects initially
+		childSelect.disabled = true;
+		termSelect.disabled = true;
+		coursesSelect.disabled = true;
+		teacherSelect.disabled = true;
+
+		// Function to add "لا يوجد" options
+		function addNoSelectionOption(selectElement, text) {
+			selectElement.innerHTML = '';
+			selectElement.innerHTML = `<option selected value="">${text}</option>`;
+			selectElement.disabled = true;
+		}
+
+		// Event listener for parent select change
+		parentSelect.addEventListener("change", function () {
+			var selectedIndex = parentSelect.selectedIndex;
+			var selectedParentId = parentSelect.value;
+
+			// Clear existing child options to avoid duplication
+			childSelect.innerHTML = '';
+
+			if (selectedIndex === 0) {
+				// If no parent stage is selected
+				addNoSelectionOption(childSelect, "اختر السنة الدراسية");
+				addNoSelectionOption(termSelect, "اختر القسم");
+				addNoSelectionOption(coursesSelect, "اختر المادة");
+				addNoSelectionOption(teacherSelect, "اختر المعلم");
+			} else {
+				// Enable child select
+				childSelect.disabled = false;
+
+				// Clear previous options in term selects
+				addNoSelectionOption(termSelect, "اختر القسم");
+				addNoSelectionOption(coursesSelect, "اختر المادة");
+				addNoSelectionOption(teacherSelect, "اختر المعلم");
+
+				// Fetch data for child based on the selected parent
+				fetch('/Teachers/GetChildStages?parentId=' + selectedParentId)
+					.then((response) => response.json())
+					.then((data) => {
+						if (data.length === 0) {
+							// If no child data is available, add a default option
+							addNoSelectionOption(childSelect, "لا يوجد سنة دراسية");
+							termSelect.disabled = true;
+							coursesSelect.disabled = true;
+							teacherSelect.disabled = true;
+						} else {
+							data.forEach((child) => {
+								childSelect.innerHTML = '<option> اختار السنة الدراسية</option>';
+								var option = document.createElement("option");
+								option.value = child.value;
+								option.text = child.text;
+								childSelect.appendChild(option);
+							});
+						}
+					})
+					.catch((error) => console.log(error));
+			}
+		});
+
+		// Event listener for child select change
+		childSelect.addEventListener("change", function () {
+			var selectedIndex = childSelect.selectedIndex;
+			var selectedChildId = childSelect.value;
+
+			// Clear existing term options to avoid duplication
+			termSelect.innerHTML = '';
+
+			if (selectedIndex === 0) {
+				// If no child stage is selected
+				addNoSelectionOption(termSelect, "اختر القسم");
+				addNoSelectionOption(coursesSelect, "اختر المادة");
+				addNoSelectionOption(teacherSelect, "اختر المعلم");
+			} else {
+				// Enable term select
+				termSelect.disabled = false;
+
+				// Clear previous options in term select
+				addNoSelectionOption(coursesSelect, "اختر المادة");
+				addNoSelectionOption(teacherSelect, "اختر المعلم");
+
+				// Fetch data for terms based on the selected child
+				fetch('/Teachers/GetTermStages?childId=' + selectedChildId)
+					.then((response) => response.json())
+					.then((data) => {
+						if (data.length === 0) {
+							// If no term data is available, add a default option
+							addNoSelectionOption(termSelect, "لا يوجد قسم");
+							coursesSelect.disabled = true;
+							teacherSelect.disabled = true;
+						} else {
+							data.forEach((term) => {
+								termSelect.innerHTML = '<option> اختار القسم</option>';
+
+								var option = document.createElement("option");
+								option.value = term.value;
+								option.text = term.text;
+								termSelect.appendChild(option);
+							});
+						}
+					})
+					.catch((error) => console.log(error));
+			}
+		});
+
+		// Event listener for term select change
+		termSelect.addEventListener("change", function () {
+			var selectedParentId = parentSelect.value;
+			var selectedChildId = childSelect.value;
+			var selectedTermId = termSelect.value;
+
+			if (selectedParentId !== "" && selectedChildId !== "" && selectedTermId !== "") {
+				// Clear existing course options to avoid duplication
+				coursesSelect.innerHTML = '';
+
+				fetch(`/Teachers/GetCourses?parentID=${selectedParentId}&childID=${selectedChildId}&termID=${selectedTermId}`)
+					.then((response) => response.json())
+					.then((data) => {
+						if (data.length === 0) {
+							// If no course data is available, add a default option
+							addNoSelectionOption(coursesSelect, "لا يوجد مادة دراسية");
+							teacherSelect.disabled = true;
+						} else {
+							coursesSelect.innerHTML = '<option selected value="">اختر المادة</option>';
+							data.forEach((course) => {
+								var option = document.createElement("option");
+								option.value = course.value;
+								option.text = course.text;
+								coursesSelect.appendChild(option);
+							});
+							coursesSelect.disabled = false;
+						}
+					})
+					.catch((error) => console.log(error));
+			} else {
+				addNoSelectionOption(coursesSelect, "اختر المادة");
+				coursesSelect.disabled = true;
+				teacherSelect.disabled = true;
+			}
+		});
+
+		teacherSelect.disabled = true;
+
+		// Event listener for course select change
+		coursesSelect.addEventListener("change", function () {
+			var selectedParentId = parentSelect.value;
+			var selectedChildId = childSelect.value;
+			var selectedTermId = termSelect.value;
+			var selectedCourseId = coursesSelect.value;
+
+			if (selectedParentId && selectedChildId && selectedTermId && selectedCourseId) {
+				// Clear existing teacher options to avoid duplication
+				teacherSelect.innerHTML = '';
+
+				fetch(`/Teachers/GetTeachers?parentID=${selectedParentId}&childID=${selectedChildId}&termID=${selectedTermId}&courseID=${selectedCourseId}`)
+					.then((response) => response.json())
+					.then((data) => {
+						if (data.length === 0) {
+							// If no teacher data is available, add a default option
+							addNoSelectionOption(teacherSelect, "لا يوجد معلم");
+						} else {
+							teacherSelect.innerHTML = '<option selected value="">اختر المعلم</option>';
+							data.forEach((teacher) => {
+								var option = document.createElement("option");
+								option.value = teacher.value;
+								option.text = teacher.text;
+								teacherSelect.appendChild(option);
+							});
+							teacherSelect.disabled = false;
+						}
+					})
+					.catch((error) => console.log(error));
+			} else {
+				addNoSelectionOption(teacherSelect, "اختر المعلم");
+				teacherSelect.disabled = true;
+			}
+		});
+
+	});
+</script>

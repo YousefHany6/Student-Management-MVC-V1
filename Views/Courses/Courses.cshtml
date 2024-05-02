@@ -1,0 +1,85 @@
+﻿@model IEnumerable<FStudentManagement.Models.Course>
+<link href="~/css/table.css" rel="stylesheet" />
+
+<partial name="_Add_Course" model="new Course()" />
+<br />
+<br />
+
+
+
+@{
+	if (Model.Any())
+	{
+			<div class="table">
+				<div class="table_section">
+					<table>
+						<thead>
+							<tr>
+
+								<th>اسم الكورس</th>
+								<th>المرحلة الدراسية</th>
+								<th>السنة الدراسية</th>
+								<th>القسم </th>
+								<th>الاعدادات</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var item in Model)
+							{
+
+								<tr>
+									<td>@item.Course_Name</td>
+									<td>@item.ParentStage.Name</td>
+									<td>@item.ChildStage.Name</td>
+									<td>@item.TermStage.Name</td>
+									<td>
+										<a asp-controller="Courses" asp-action="Edit_Course" class="btn btn-primary" asp-route-id="@item.Course_ID">تعديل</a>
+										<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal_@item.Course_ID">
+											حذف
+										</button>
+									</td>
+								</tr>
+								<div class="modal fade" id="exampleModal_@item.Course_ID" tabindex="-1" aria-labelledby="exampleModalLabel_@item.Course_ID" aria-hidden="true">
+									<div class="modal-dialog">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+												<h5 class="modal-title" id="exampleModalLabel_@item.Course_ID">تأكيد الحذف</h5>
+											</div>
+											<div class="modal-body">
+												هل تريد حذف مادة @item.Course_Name ؟
+											</div>
+											<div class="modal-footer">
+												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">الغاء</button>
+												<a asp-controller="Courses" asp-action="Delete_Course" asp-route-id="@item.Course_ID" class="btn btn-danger"> الحذف</a>
+											</div>
+										</div>
+									</div>
+								</div>
+
+							}
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+		}
+		else
+		{
+			<div class="table">
+				<div class="table_header">
+					<div style="    display: flex;
+						flex-direction: column;">
+						<h1>لا يوجد مواد دراسية يرجى انشاء مادة </h1>
+					</div>
+				</div>
+			</div>
+		}
+}
+
+
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+
+}

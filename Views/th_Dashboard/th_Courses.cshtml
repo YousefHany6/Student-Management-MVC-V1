@@ -1,0 +1,57 @@
+﻿@model IEnumerable<TeacherCourse>
+<link href="~/css/table.css" rel="stylesheet" />
+@if (Model == null)
+{
+	<h1>لا يوجد مواد</h1>
+}
+<style>
+	th {
+		background: #58595b !important;
+		color: white !important;
+		font-size: 20px !important;
+		font-weight: 800 !important;
+	}
+</style>
+
+<div class="table_section">
+	<table>
+		<thead>
+			<tr>
+				@{
+					int count = 1;
+				}
+				<th scope="col" class="col-3">#</th>
+				<th scope="col" class="col-3">اسم الماده</th>
+				<th scope="col" class="col-3">المرحلة الدراسية</th>
+				<th scope="col" class="col-3">السنة الدراسية</th>
+				<th scope="col" class="col-3">القسم</th>
+				<th scope="col" class="col-3">الطلاب</th>
+			</tr>
+		</thead>
+		<tbody>
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+			<tr>
+				@foreach (var item in Model)
+				{
+
+				<tr>
+
+					<td scope="row" class="col-3">@count</td>
+					<td class="col-3">@item.Course.Course_Name</td>
+					<td class="col-3">@item.Course.ParentStage.Name</td>
+					<td class="col-3">@item.Course.ChildStage.Name</td>
+					<td class="col-3">@item.Course.TermStage.Name</td>
+					<form method="post">
+					<td><button asp-controller="th_Dashboard" asp-action="th_student" asp-route-teacherid="@item.Teacher_ID" asp-route-courseid="@item.Course_ID" class="btn btn-primary">عرض الطلاب</button></td>
+					</form>
+						@{
+							count++;
+						}
+				</tr>
+				}
+
+
+		</tbody>
+	</table>
+</div>

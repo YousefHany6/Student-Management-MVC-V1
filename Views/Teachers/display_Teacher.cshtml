@@ -1,0 +1,101 @@
+﻿@model Teacher
+<link href="~/css/table.css" rel="stylesheet" />
+
+
+<partial name="_ChooseStages" model="new Teacher()" />
+<br>
+<br>
+@{
+	if (Model != null)
+	{
+
+
+		<div asp-validation-summary="ModelOnly" role="alert" class="text-danger"></div>
+
+		<div class="row " id="butshow" style="
+				display:none;
+									margin-right: 40px;
+									margin-bottom: 40px;
+									margin-top: 40px;
+										">
+			<div class="col-md-6">
+				<form autocomplete="off" lang="ar" enctype="multipart/form-data" method="post">
+					<button asp-controller="Teachers"
+													asp-action="Delete_Teacher_Stage"
+													type="submit" asp-route-id="@Model.Teacher_ID" asp-route-parentid="@ViewBag.par" asp-route-childid="@ViewBag.ch" asp-route-termid="@ViewBag.te" asp-route-courseid="@ViewBag.co" class="btn btn-dark">
+						حذف المعلم  @Model.Teacher_Name  الخاص بمادة @ViewBag.cours من @ViewBag.parent
+					</button>
+				</form>
+			</div>
+			<div class="col-md-6">
+				<form autocomplete="off" lang="ar" enctype="multipart/form-data" method="post">
+					<button asp-controller="Teachers"
+													asp-action="Delete_Teacher_System"
+													type="submit" asp-route-id="@Model.Teacher_ID" asp-route-parentid="@ViewBag.par" asp-route-childid="@ViewBag.ch" asp-route-termid="@ViewBag.te" asp-route-courseid="@ViewBag.co" class="btn btn-dark">
+						حذف المعلم  @Model.Teacher_Name من النظام
+					</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="table">
+			<div class="table_section">
+				<table>
+					<thead>
+						<tr>
+
+							<th>اسم المعلم</th>
+							<th>الاعدادات</th>
+						</tr>
+					</thead>
+					<tbody>
+
+
+						<tr>
+							<td>@Model.Teacher_Name</td>
+							<td>
+								<button id="btndele"><i class='delet bx bxs-message-square-x'>حذف</i></button>
+							</td>
+						</tr>
+
+
+					</tbody>
+				</table>
+
+			</div>
+
+		</div>
+
+
+
+	}
+	else
+	{
+		<div class="table">
+			<div class="table_header">
+				<div>
+					<h1>يرجى اختيار المعلم </h1>
+
+				</div>
+			</div>
+		</div>
+	}
+
+}
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		var btndele = document.getElementById("btndele");
+		var butshow = document.getElementById("butshow");
+
+		if (btndele) {
+			btndele.addEventListener("click", function () {
+				if (butshow.style.display === "none" || butshow.style.display === "") {
+					butshow.style.display = "flex";
+				} else {
+					butshow.style.display = "none";
+				}
+			});
+		}
+	});
+</script>
+

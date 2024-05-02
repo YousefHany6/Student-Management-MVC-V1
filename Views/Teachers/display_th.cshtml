@@ -1,0 +1,74 @@
+﻿@model IEnumerable<Teacher>
+<link href="~/css/table.css" rel="stylesheet" />
+
+
+@{
+	if (Model.Any())
+	{
+
+
+
+			<div class="table">
+
+				<div class="table_section">
+					<table>
+						<thead>
+							<tr>
+
+								<th>اسم المعلم</th>
+								<th>الاعدادات</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var item in Model)
+							{
+
+								<tr>
+									<td>@item.Teacher_Name</td>
+									<td>
+										<button data-bs-toggle="modal" data-bs-target="#exampleModal_@item.Teacher_ID"><i class='delet bx bxs-message-square-x'></i></button>
+									</td>
+								</tr>
+								<div class="modal fade" id="exampleModal_@item.Teacher_ID" tabindex="-1" aria-labelledby="exampleModal_@item.Teacher_ID" aria-hidden="true">
+									<div class="modal-dialog">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+												<h5 class="modal-title" id="exampleModalLabel_@item.Teacher_ID">تأكيد الحذف</h5>
+											</div>
+											<div class="modal-body">
+												هل تريد حذف الطالب : @item.Teacher_Name ؟
+											</div>
+											<div class="modal-footer">
+												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">الغاء</button>
+												<form autocomplete="off" lang="ar" enctype="multipart/form-data" method="post">
+
+												<input type="submit" asp-controller="Teachers" asp-action="Delete_Teacher_System" asp-route-id="@item.Teacher_ID" value="حذف" class="btn btn-danger" />
+												</form>
+											</div>
+										</div>
+									</div>
+								</div>
+
+							}
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+		}
+		else
+		{
+			<div class="table">
+				<div class="table_header">
+					<div style="    display: flex;
+						flex-direction: column;">
+						<h1>لا يوجد معملمين </h1>
+						<a asp-controller="Teachers" asp-action="Add_Teacher" class="btn btn-primary"> انشاء معلم جديد</a>
+
+					</div>
+				</div>
+			</div>
+		}
+
+}

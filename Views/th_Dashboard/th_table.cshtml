@@ -1,0 +1,58 @@
+﻿@model IEnumerable<TeacherCourse>
+<link rel="stylesheet" href="https://unpkg.com/bs-brain@2.0.3/components/registrations/registration-5/assets/css/registration-5.css">
+<link href="~/css/display.css" rel="stylesheet" />
+
+<form autocomplete="off" lang="ar" enctype="multipart/form-data" method="post">
+	<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+	<div class="container">
+		<div class="card mt-1">
+			<div class="card-body" dir="rtl">
+				<div class="row" style="justify-content: center;">
+					@{
+
+						@if (Model != null)
+						{
+							<div class="col-6">
+								<label class="form-label">المادة<span class="text-danger">*</span></label>
+
+
+								<select name="courseid" >
+									<option selected>اختار المادة الدراسية</option>
+									@foreach (var item in Model)
+									{
+										<option  value="@item.Course_ID">@item.Course.Course_Name</option>
+									}
+								</select>
+							</div>
+							<div class="col-6">
+								<label class="form-label">تاريخ الجدول<span class="text-danger">*</span></label>
+								<input name="datenow" lang="ar" class="form-control my-custom-calendar" type="datetime-local" />
+							</div>
+							<button class="btn btn-lg btn-primary mt-5" asp-controller="th_Dashboard"
+															asp-action="create_table"
+															asp-route-thid="@ViewBag.thid" type="submit">
+								انشاء جدول تسجيل الحضور
+							</button>
+						}
+
+						else
+						{
+							<div class="sec2 col-12">
+								<h4>يرجى انشاء مرحلة دراسية</h4>
+								<a asp-controller="AddStages" asp-action="GetAllStags" class="btn btn-dark"> انشاء مرحلة دراسية</a>
+
+							</div>
+						}
+					}
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+</form>
+
+
+
+

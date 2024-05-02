@@ -1,0 +1,106 @@
+﻿@model IEnumerable<Student>
+<link href="~/css/table.css" rel="stylesheet" />
+
+
+<partial name="_ChooseStages" model="new Student()" />
+@{
+	if (Model != null)
+	{
+		if (Model.Count() != 0)
+		{
+
+
+			<div class="table">
+				<div class="table_header">
+					<div>
+						<input type="text" placeholder="طالب">
+						<button class="add_new">+ اضف</button>
+					</div>
+				</div>
+
+				<div class="table_section">
+					<table>
+						<thead>
+							<tr>
+
+								<th>اسم الطالب</th>
+								<th>المواد</th>
+								<th>الاعدادات</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var item in Model)
+							{
+
+								<tr>
+									<td>@item.Student_Name</td>
+									<td>
+										@{
+											if (item.StudentCourses != null)
+											{
+												foreach (var courses in item.StudentCourses)
+												{
+													<text>@courses.Course.Course_Name</text>
+													<br />
+												}
+											}
+										}
+									</td>
+									<td>
+										<button data-bs-toggle="modal" data-bs-target="#exampleModal_@item.Student_ID"><i class='delet bx bxs-message-square-x'></i></button>
+									</td>
+								</tr>
+								<div class="modal fade" id="exampleModal_@item.Student_ID" tabindex="-1" aria-labelledby="exampleModal_@item.Student_ID" aria-hidden="true">
+									<div class="modal-dialog">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+												<h5 class="modal-title" id="exampleModalLabel_@item.Student_ID">تأكيد الحذف</h5>
+											</div>
+											<div class="modal-body">
+												هل تريد حذف الطالب : @item.Student_Name ؟
+											</div>
+											<div class="modal-footer">
+												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">الغاء</button>
+												<form autocomplete="off" lang="ar" enctype="multipart/form-data" method="post">
+
+													<input type="submit" asp-controller="Students" asp-action="delete_Student" asp-route-id="@item.Student_ID" value="حذف" class="btn btn-danger" />
+												</form>
+											</div>
+										</div>
+									</div>
+								</div>
+
+							}
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+		}
+		else
+		{
+			<div class="table">
+				<div class="table_header">
+					<div style="    display: flex;
+					flex-direction: column;">
+						<h1>لا يوجد طلاب لهذه المرحلة </h1>
+						<a asp-controller="Students" asp-action="Add_Student" class="btn btn-primary"> انشاء طالب جديد</a>
+
+					</div>
+				</div>
+			</div>
+		}
+	}
+	else
+	{
+		<div class="table">
+			<div class="table_header">
+				<div>
+					<h1>يرجى اختيار مرحلة لعرض الطلاب </h1>
+
+				</div>
+			</div>
+		</div>
+	}
+}

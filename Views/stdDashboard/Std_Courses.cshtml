@@ -1,0 +1,58 @@
+﻿@model IEnumerable<StudentCourse>
+<link href="~/css/table.css" rel="stylesheet" />
+@{
+	if (Model.Any())
+	{
+
+		<style>
+			th {
+			background: #58595b !important;
+			color: white !important;
+			font-size: 20px !important;
+			font-weight: 800 !important;
+			}
+		</style>
+
+		<div class="table_section">
+			<table>
+				<thead>
+					<tr>
+						@{
+							int count = 1;
+						}
+						<th scope="col" class="col-3">#</th>
+						<th scope="col" class="col-3">اسم الماده</th>
+						<th scope="col" class="col-3">الغياب</th>
+					</tr>
+				</thead>
+				<tbody>
+					<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+					<tr>
+						@foreach (var item in Model)
+						{
+
+							<tr>
+
+								<td scope="row" class="col-3">@count</td>
+								<td class="col-3">@item.Course.Course_Name</td>
+								<form method="post">
+									<td><button class="btn btn-primary" type="submit" asp-controller="stdDashboard" asp-route-courseid="@item.CourseID" asp-route-stdid="@item.StudentID" asp-action="std_Absence">الغياب</button></td>
+								</form>
+								@{
+									count++;
+								}
+							</tr>
+						}
+
+
+				</tbody>
+			</table>
+		</div>
+	}
+	else
+	{
+		<h1>لا يوجد مواد</h1>
+
+	}
+}

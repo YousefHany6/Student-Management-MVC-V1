@@ -1,0 +1,122 @@
+﻿
+
+
+
+
+@model IEnumerable<ParentStage>
+
+<link href="~/css/page5.css" rel="stylesheet" />
+<style>
+	.ff{
+		display: inline;
+	}
+</style>
+
+	
+<partial name="_Add_Parent_Stage" model="new ParentStage()" />
+<partial name="_Add_Child_Stage" model="new ChildStage()" />
+<partial name="_Add_Term_Stage" model="new TermStage()" />
+
+<div class="container" dir="rtl">
+	<h3 class="header">عرض المراحل</h3>
+	<div class="card ">
+		<div class="card-body con">
+			@{@if (Model.Any())
+			{
+				@foreach (var parentStage in Model)
+				{
+					<div class="row">
+						<div class="col-6 header2">
+							<h4 class="header">@parentStage.Name</h4>
+						</div>
+						<div class="col-6">
+							<form class="ff" asp-controller="AddStages"
+							enctype="multipart/form-data" method="get">
+
+								<button type="submit" asp-action="Edit_Parent_Stage" asp-route-id="@parentStage.ParentStageId" class="btn btn-primary">تعديل</button>
+							</form>
+							<form class="ff" asp-controller="AddStages"
+							enctype="multipart/form-data" method="post">
+								<button asp-action="Delete_Parent_Stage" asp-route-id="@parentStage.ParentStageId" type="submit" class="btn btn-danger">حذف</button>
+							</form>
+						</div>
+						@if (parentStage.ChildStages != null)
+						{
+							@foreach (var childStage in parentStage.ChildStages)
+							{
+								<div class="card crd">
+									<div class="card-body">
+										<div class="row inside">
+											<div class="col-6 header2">
+												<h4 class="header">@childStage.Name</h4>
+											</div>
+											<div class="col-6">
+												<form class="ff" asp-controller="AddStages"
+												enctype="multipart/form-data" method="get">
+													<button type="submit" asp-action="Edit_Child_Stage" asp-route-id="@childStage.ChildStageId" class="btn btn-primary">تعديل</button>
+												</form>
+												<form class="ff" asp-controller="AddStages"
+												enctype="multipart/form-data" method="post">
+													<button asp-action="Delete_child_Stage" asp-route-id="@childStage.ChildStageId" type="submit" class="btn btn-danger">حذف</button>
+												</form>
+												<button type="button" class="icon" data-level="1" data-dropdown="#dropdown-content1">
+													<i class='bx bx-down-arrow-alt'></i>
+												</button>
+											</div>
+											@if (childStage.TermStages != null)
+											{
+												foreach (var termStage in childStage.TermStages)
+												{
+													<div class="dropdown-content1">
+														<div class="card mb-3">
+															<div class="card-body">
+																<div class="row">
+																	<div class="col-6 header2">
+																		<h4 class="header">@termStage.Name</h4>
+																	</div>
+																	<div class="col-6">
+																		<form class="ff" asp-controller="AddStages"
+																		enctype="multipart/form-data" method="get">
+																			<button type="submit" asp-action="Edit_Term_Stage" asp-route-id="@termStage.TermStageId" class="btn btn-primary">تعديل</button>
+																		</form>
+																		<form class="ff" asp-controller="AddStages"
+																		enctype="multipart/form-data" method="post">
+																			<button asp-action="Delete_Term_Stage" asp-route-id="@termStage.TermStageId" type="submit" class="btn btn-danger">حذف</button>
+																		</form>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												}
+											}
+										</div>
+									</div>
+								</div>
+							}
+						}
+					</div>
+				}
+				}
+				else
+				{
+					<h1>لايوجد مراحل يرجى انشاء مرحلة</h1>
+				}
+			}
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+	<script>
+		$(document).ready(function () {
+			$(".icon").on("click", function () {
+				var level = $(this).data('level');
+				var dropdownContent = $(".dropdown-content" + level);
+				dropdownContent.toggle();
+			});
+		});
+	</script>
+}
+
